@@ -965,6 +965,21 @@ const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`[wrapper] workspace dir: ${WORKSPACE_DIR}`);
   console.log(`[wrapper] gateway token: ${OPENCLAW_GATEWAY_TOKEN ? "(set)" : "(missing)"}`);
   console.log(`[wrapper] gateway target: ${GATEWAY_TARGET}`);
+
+  // Create persistent package manager directories on startup
+  try {
+    fs.mkdirSync(process.env.PNPM_STORE_DIR || "/data/pnpm-store", { recursive: true });
+    fs.mkdirSync(process.env.PNPM_HOME || "/data/pnpm-home", { recursive: true });
+    fs.mkdirSync(process.env.npm_config_cache || "/data/npm-cache", { recursive: true });
+    fs.mkdirSync(process.env.npm_config_prefix || "/data/npm-global", { recursive: true });
+    console.log(`[wrapper] pnpm-store: ${process.env.PNPM_STORE_DIR || "/data/pnpm-store"}`);
+    console.log(`[wrapper] pnpm-home: ${process.env.PNPM_HOME || "/data/pnpm-home"}`);
+    console.log(`[wrapper] npm-cache: ${process.env.npm_config_cache || "/data/npm-cache"}`);
+    console.log(`[wrapper] npm-global: ${process.env.npm_config_prefix || "/data/npm-global"}`);
+  } catch (err) {
+    console.warn("[wrapper] Failed to create package manager directories:", err);
+  }
+
   if (!SETUP_PASSWORD) {
     console.warn("[wrapper] WARNING: SETUP_PASSWORD is not set; /setup will error.");
   }

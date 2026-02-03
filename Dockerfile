@@ -45,9 +45,14 @@ ENV NODE_ENV=production
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ca-certificates \
+    curl \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# Install pnpm for development and global package installs
+RUN corepack enable && \
+  pnpm install -g pnpm
 
 # Wrapper deps
 COPY package.json ./
@@ -59,6 +64,19 @@ COPY --from=openclaw-build /openclaw /openclaw
 # Provide an openclaw executable
 RUN printf '%s\n' '#!/usr/bin/env bash' 'exec node /openclaw/dist/entry.js "$@"' > /usr/local/bin/openclaw \
   && chmod +x /usr/local/bin/openclaw
+
+# Setup persistent package manager caches and global directories
+# These persist through container restarts via Railway volume at /data
+ENV PNPM_STORE_DIR=/data/pnpm-store
+ENV PNPM_HOME=/data/pnpm-home
+ENV npm_config_cache=/data/npm-cache
+ENV npm_config_prefix=/data/npm-global
+
+# Add pnpm to PATH for global installs
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+# Create persistent directories on startup (will be created by server.js too)
+# This is documented here for clarity
 
 COPY src ./src
 
