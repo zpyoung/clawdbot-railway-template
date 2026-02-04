@@ -9,6 +9,20 @@ This repo packages **OpenClaw** for Railway with a small **/setup** web wizard s
 - Persistent state via **Railway Volume** (so config/credentials/memory survive redeploys)
 - One-click **Export backup** (so users can migrate off Railway later)
 - **Import backup** from `/setup` (advanced recovery)
+- **Persistent package manager caches** (for development: `pnpm` store, `npm` cache, and global packages survive container restarts)
+
+## Development persistence
+
+When developing in this container (e.g., working on projects in `/data/workspace`), package manager caches and global installs are automatically persisted to the Railway volume:
+
+- **PNPM store**: `/data/pnpm-store` - Shared package cache for faster installs
+- **PNPM home**: `/data/pnpm-home` - Global `pnpm` executables
+- **NPM cache**: `/data/npm-cache` - `npm` package cache
+- **NPM global**: `/data/npm-global` - Globally installed CLI tools
+
+This means `npm install`, `pnpm install`, and global package installs (like `pnpm add -g typescript`) will persist across container restarts. You don't need to reinstall development tools every time.
+
+**Note**: The first time you run `pnpm` or `npm` after a redeploy, it will repopulate the cache, but subsequent runs will be much faster as the cache is restored from the volume.
 
 ## How it works (high level)
 
