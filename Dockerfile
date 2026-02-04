@@ -46,7 +46,14 @@ RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
+    python3 \
+    python3-pip \
+    python3-venv \
   && rm -rf /var/lib/apt/lists/*
+
+# Install uv (fast Python package manager)
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /app
 
@@ -56,6 +63,10 @@ ENV PNPM_STORE_DIR=/data/pnpm-store
 ENV PNPM_HOME=/data/pnpm-home
 ENV npm_config_cache=/data/npm-cache
 ENV npm_config_prefix=/data/npm-global
+
+# Python package manager caches
+ENV PIP_CACHE_DIR=/data/pip-cache
+ENV UV_CACHE_DIR=/data/uv-cache
 
 # Add pnpm to PATH for global installs
 ENV PATH="${PNPM_HOME}:${PATH}"
