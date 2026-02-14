@@ -49,6 +49,12 @@ RUN apt-get update \
     python3 \
     python3-pip \
     python3-venv \
+    # Headless browser support for screenshots/PDF rendering.
+    chromium \
+    # Fonts help avoid tofu squares in screenshots/PDFs.
+    fontconfig \
+    fonts-noto-core \
+    fonts-noto-color-emoji \
   && rm -rf /var/lib/apt/lists/*
 
 # Install uv (fast Python package manager)
